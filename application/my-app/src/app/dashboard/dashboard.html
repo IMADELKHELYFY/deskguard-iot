@@ -1,0 +1,72 @@
+<main class="page">
+  @if (tm.live(); as live) {
+    <section [class]="'status ' + (tm.online() ? live.state : 'offline')">
+      <span class="led" aria-hidden="true"></span>
+      <div>
+        <p class="status-title">{{ tm.online() ? t().state[live.state] : t().offline }}</p>
+        <p class="status-sub">{{ tm.online() ? reasonText() : t().offlineHint }}</p>
+      </div>
+    </section>
+
+    <section class="tiles">
+      <div class="tile" [title]="t().distanceTip">
+        <p class="tile-label"><app-icon name="ruler" /> {{ t().distance }}</p>
+        <p class="tile-value">{{ live.distance > 0 ? (live.distance | number: '1.0-0') + ' cm' : '—' }}</p>
+        <p class="tile-sub">≥ {{ tm.config().distMin }} cm</p>
+      </div>
+      <div class="tile" [title]="t().presenceTip">
+        <p class="tile-label"><app-icon name="user" /> {{ t().presence }}</p>
+        <p class="tile-value">{{ live.present ? t().yes : t().no }}</p>
+        <p class="tile-sub">PIR : {{ live.motion ? t().moving : t().still }}</p>
+      </div>
+      <div class="tile" [title]="t().lightTip">
+        <p class="tile-label"><app-icon name="sun" /> {{ t().light }}</p>
+        <p class="tile-value">
+          {{ live.lux1 >= 0 ? (live.lux1 | number: '1.0-0') : '—' }} / {{ live.lux2 >= 0 ? (live.lux2 | number: '1.0-0') : '—' }}
+          <small>lx</small>
+        </p>
+        <p class="tile-sub">{{ t().gap }} {{ live.imbalance >= 0 ? live.imbalance + ' %' : '—' }} (max {{ tm.config().imbalancePct }} %)</p>
+      </div>
+      <div class="tile" [title]="t().sessionTip">
+        <p class="tile-label"><app-icon name="clock" /> {{ t().session }}</p>
+        <p class="tile-value">{{ live.sitMin }} <small>min</small></p>
+        <div class="bar" aria-hidden="true">
+          <span [style.width.%]="sitPct()"></span>
+        </div>
+        <p class="tile-sub">/ {{ tm.config().pauseMin }} min</p>
+      </div>
+    </section>
+  } @else {
+    <section class="status offline">
+      <span class="led" aria-hidden="true"></span>
+      <div>
+        <p class="status-title">{{ t().offline }}</p>
+        <p class="status-sub">{{ t().noData }}</p>
+      </div>
+    </section>
+  }
+
+  <section class="card">
+    <h2 [title]="t().chartTip"><app-icon name="chart" /> {{ t().chart }} <app-icon name="info" class="tip" /></h2>
+    @if (chart(); as c) {
+      <div class="chart-wrap">
+        <span class="chart-max">{{ c.maxD }} cm</span>
+        <svg class="chart" [attr.viewBox]="'0 0 ' + chartBox.w + ' ' + chartBox.h" preserveAspectRatio="none"
+             role="img" [attr.aria-label]="t().chart">
+          <line class="axis" [attr.x1]="chartBox.pad" [attr.x2]="chartBox.w - chartBox.pad"
+                [attr.y1]="chartBox.h - chartBox.pad" [attr.y2]="chartBox.h - chartBox.pad" />
+          <line class="threshold" [attr.x1]="chartBox.pad" [attr.x2]="chartBox.w - chartBox.pad"
+                [attr.y1]="c.thresholdY" [attr.y2]="c.thresholdY" />
+          <path class="line" [attr.d]="c.path" />
+          <path class="dots orange" [attr.d]="c.orangeDots" />
+          <path class="dots red" [attr.d]="c.redDots" />
+        </svg>
+        <div class="chart-axis"><span>{{ c.start }}</span><span>{{ c.end }}</span></div>
+      </div>
+    } @else {
+      <p class="muted">{{ t().chartEmpty }}</p>
+    }
+  </section>
+
+
+</main>

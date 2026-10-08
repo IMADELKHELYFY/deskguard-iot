@@ -1,0 +1,75 @@
+<main class="page">
+  <section class="card">
+    <h2 [title]="t().settingsTip"><app-icon name="settings" /> {{ t().settings }} <app-icon name="info" class="tip" /></h2>
+    <form class="settings" (submit)="$event.preventDefault(); save()">
+      @for (f of fields; track f.key) {
+        <label class="field" [title]="t()[f.tip]">
+          <span class="field-head">
+            <span>{{ t()[f.label] }} <app-icon name="info" class="tip" /></span>
+            <output>{{ f.key === 'luxCal' ? (draft()[f.key] | number: '1.2-2') : draft()[f.key] }} {{ f.unit }}</output>
+          </span>
+          <input type="range" [min]="f.min" [max]="f.max" [step]="f.step" [value]="draft()[f.key]" (input)="patch(f.key, $event)" />
+        </label>
+      }
+      <label class="check" [title]="t().tgTip">
+        <input type="checkbox" [checked]="draft().telegramOn" (change)="toggleTelegram($event)" />
+        <app-icon name="send" /> {{ t().tgEnabled }}
+      </label>
+      <div class="form-actions">
+        @switch (saveStatus()) {
+          @case ('saving') { <span class="muted">{{ t().saving }}</span> }
+          @case ('saved') { <span class="ok">{{ t().saved }}</span> }
+          @case ('error') { <span class="err">{{ t().saveError }}</span> }
+        }
+        @if (dirty()) {
+          <button type="button" class="ghost" (click)="cancel()">{{ t().cancel }}</button>
+        }
+        <button type="submit" class="primary" [disabled]="!dirty() || saveStatus() === 'saving'">{{ t().save }}</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2 [title]="t().tgTip"><app-icon name="send" /> {{ t().tgTitle }} <app-icon name="info" class="tip" /></h2>
+
+    @let link = tm.telegram();
+    @if (link && link.status === 'verified' && !editingPhone()) {
+      <p class="ok tg-line"><app-icon name="check" /> {{ t().tgVerified(link.phoneLast2) }}</p>
+      <div class="form-actions">
+        <button type="button" class="ghost" (click)="editingPhone.set(true)">{{ t().tgChange }}</button>
+        <button type="button" class="ghost" [disabled]="tgBusy()" (click)="removePhone()">{{ t().tgRemove }}</button>
+      </div>
+    } @else if (link && link.status === 'pending' && !editingPhone()) {
+      <ol class="tg-steps">
+        <li>
+          {{ t().tgStep1 }}
+          @if (botLink(); as url) {
+            <a class="button primary" [href]="url" target="_blank" rel="noopener"><app-icon name="send" /> {{ t().tgOpenBot }}</a>
+          } @else {
+            <span class="err">{{ t().tgNoBot }}</span>
+          }
+        </li>
+        <li>{{ t().tgStep2 }}</li>
+      </ol>
+      <p class="muted tg-line">{{ t().tgCode }} : <code>{{ link.code }}</code> · {{ t().tgWaiting }}</p>
+      <div class="form-actions">
+        <button type="button" class="ghost" [disabled]="tgBusy()" (click)="removePhone()">{{ t().cancel }}</button>
+      </div>
+    } @else {
+      @if (link?.status === 'failed') {
+        <p class="err tg-line">{{ t().tgFailed }}</p>
+      }
+      <form class="tg-form" (submit)="$event.preventDefault(); verifyPhone()">
+        <label class="field">
+          <span>{{ t().tgPhone }}</span>
+          <input type="tel" autocomplete="tel" [placeholder]="t().tgPhonePlaceholder" [value]="phone()" (input)="onPhoneInput($event)" />
+        </label>
+        <button type="submit" class="primary" [disabled]="tgBusy()">{{ t().tgVerify }}</button>
+      </form>
+      @if (phoneError()) {
+        <p class="err tg-line">{{ t().tgPhoneInvalid }}</p>
+      }
+    }
+    <p class="muted small">{{ t().tgPrivacy }}</p>
+  </section>
+</main>

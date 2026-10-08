@@ -1,0 +1,41 @@
+<header class="topbar page-wide">
+  <h1><app-icon name="desk" /> DeskGuard <span class="muted">· {{ t().device }} {{ tm.deviceId }}</span></h1>
+  <div class="actions">
+    @if (notif() === 'default') {
+      <button type="button" class="ghost" (click)="enableNotifications()" [title]="t().enableNotifTip">
+        <app-icon name="bell" /> <span class="hide-sm">{{ t().enableNotif }}</span>
+      </button>
+    }
+    <button type="button" class="ghost" (click)="ui.toggleLang()" [title]="t().language" [attr.aria-label]="t().language">
+      <app-icon name="globe" /> {{ ui.lang() === 'fr' ? 'EN' : 'FR' }}
+    </button>
+    <button type="button" class="ghost" (click)="ui.toggleTheme()" [title]="t().theme" [attr.aria-label]="t().theme">
+      <app-icon [name]="ui.theme() === 'dark' ? 'sun' : 'moon'" />
+    </button>
+  </div>
+</header>
+
+<nav class="tabs page-wide">
+  <a routerLink="/" routerLinkActive="active" queryParamsHandling="preserve" [routerLinkActiveOptions]="{ exact: true }"><app-icon name="gauge" /> {{ t().navDashboard }}</a>
+  <a routerLink="/historique" routerLinkActive="active" queryParamsHandling="preserve"><app-icon name="history" /> {{ t().navHistory }}</a>
+  <a routerLink="/reglages" routerLinkActive="active" queryParamsHandling="preserve"><app-icon name="settings" /> {{ t().navSettings }}</a>
+</nav>
+
+@if (alertOpen() && tm.live(); as live) {
+  <div class="alert-toast page-wide" [class]="'alert-toast page-wide ' + live.state" role="alert">
+    <app-icon name="alert" />
+    <div>
+      <p class="status-title">{{ t().state[live.state] }}</p>
+      <p class="status-sub">{{ alertText() }}</p>
+    </div>
+    <button type="button" class="ghost" (click)="alertOpen.set(false)">{{ t().alertDismiss }}</button>
+  </div>
+}
+
+<router-outlet />
+
+<footer class="muted footer">
+  <span class="dot-net" [class.on]="tm.connected()"></span>
+  Firebase {{ tm.connected() ? t().online : t().offline }}
+  @if (tm.ageSec() !== null) { · {{ t().updated(tm.ageSec()!) }} }
+</footer>

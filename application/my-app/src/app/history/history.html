@@ -1,0 +1,87 @@
+<main class="page">
+  <section class="card">
+    <div class="history-head">
+      <h2 [title]="t().historyTip"><app-icon name="history" /> {{ t().historyTitle }} <app-icon name="info" class="tip" /></h2>
+      <div class="day-picker">
+        <button type="button" class="ghost" (click)="shiftDay(-1)" [title]="t().prevDay" [attr.aria-label]="t().prevDay"><app-icon name="left" /></button>
+        <input type="date" [value]="dateValue()" (change)="pickDate($event)" [attr.aria-label]="t().day" />
+        <button type="button" class="ghost" (click)="shiftDay(1)" [disabled]="isToday()" [title]="t().nextDay" [attr.aria-label]="t().nextDay"><app-icon name="right" /></button>
+      </div>
+    </div>
+
+    @let a = analysis();
+    <div class="tiles">
+      <div class="tile" [title]="t().historyTip">
+        <p class="tile-label"><app-icon name="clock" /> {{ t().totalTime }}</p>
+        <p class="tile-value">{{ duration(a.total) }}</p>
+        <p class="tile-sub">{{ a.sessions.length }} {{ t().sessions | lowercase }} · {{ t().longest | lowercase }} {{ duration(a.longest) }}</p>
+      </div>
+      <div class="tile good" [title]="t().timelineTip">
+        <p class="tile-label"><span class="swatch green"></span> {{ t().goodTime }}</p>
+        <p class="tile-value">{{ duration(a.ms.green) }}</p>
+        <p class="tile-sub">{{ pct(a.ms.green, a.total) }} %</p>
+      </div>
+      <div class="tile" [title]="t().timelineTip">
+        <p class="tile-label"><span class="swatch orange"></span> {{ t().warnTime }}</p>
+        <p class="tile-value">{{ duration(a.ms.orange) }}</p>
+        <p class="tile-sub">{{ pct(a.ms.orange, a.total) }} %</p>
+      </div>
+      <div class="tile" [title]="t().timelineTip">
+        <p class="tile-label"><span class="swatch red"></span> {{ t().dangerTime }}</p>
+        <p class="tile-value">{{ duration(a.ms.red) }}</p>
+        <p class="tile-sub">{{ pct(a.ms.red, a.total) }} %</p>
+      </div>
+    </div>
+  </section>
+
+  @if (timeline(); as tl) {
+    <section class="card">
+      <h2 [title]="t().timelineTip"><app-icon name="chart" /> {{ t().timeline }} <app-icon name="info" class="tip" /></h2>
+      <div class="timeline" role="img" [attr.aria-label]="t().timeline">
+        @for (b of tl.bars; track $index) {
+          <span [class]="'seg ' + b.state" [style.left.%]="b.left" [style.width.%]="b.width"></span>
+        }
+      </div>
+      <div class="timeline-hours">
+        @for (h of tl.hours; track h.left) {
+          <span [style.left.%]="h.left">{{ h.label }}</span>
+        }
+      </div>
+    </section>
+  }
+
+  @for (s of sessionsDesc(); track s.start) {
+    <section class="card session">
+      <div class="session-head">
+        <div>
+          <p class="session-title">
+            {{ t().sessionN(s.n) }}
+            @if (s.ongoing) { <span class="badge live">{{ t().ongoing }}</span> }
+          </p>
+          <p class="muted">{{ t().from }} {{ hhmm(s.start) }} {{ t().to }} {{ hhmm(s.end) }} · {{ duration(s.length) }}</p>
+        </div>
+        <span [class]="'badge ' + s.verdict" [title]="t().verdictTip">{{ t().verdict[s.verdict] }}</span>
+      </div>
+      <div class="stack" aria-hidden="true">
+        <span class="green" [style.flex-grow]="s.ms.green"></span>
+        <span class="orange" [style.flex-grow]="s.ms.orange"></span>
+        <span class="red" [style.flex-grow]="s.ms.red"></span>
+      </div>
+      <ul class="session-detail">
+        <li><span class="swatch green"></span> {{ t().goodTime }} : <b>{{ duration(s.ms.green) }}</b> ({{ pct(s.ms.green, s.length) }} %)</li>
+        <li>
+          <span class="swatch orange"></span> {{ t().warnTime }} : <b>{{ duration(s.ms.orange) }}</b>
+          @if (s.reasons.break) {
+            <span class="muted">· {{ t().reasonShort.break }} {{ duration(s.reasons.break) }}</span>
+          }
+          @if (s.reasons.light) {
+            <span class="muted">· {{ t().reasonShort.light }} {{ duration(s.reasons.light) }}</span>
+          }
+        </li>
+        <li><span class="swatch red"></span> {{ t().dangerTime }} ({{ t().reasonShort.proximity }}) : <b>{{ duration(s.ms.red) }}</b></li>
+      </ul>
+    </section>
+  } @empty {
+    <section class="card"><p class="muted">{{ t().noSessions }}</p></section>
+  }
+</main>
