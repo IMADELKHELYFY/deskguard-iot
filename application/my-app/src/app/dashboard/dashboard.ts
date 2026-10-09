@@ -5,6 +5,7 @@ import { TelemetryService } from '../telemetry.service';
 import { UiService, hhmm } from '../ui.service';
 
 const CHART = { w: 600, h: 180, pad: 28 };
+const MAX_GAP_MS = 3 * 60_000;
 
 @Component({
   selector: 'app-dashboard',
@@ -49,7 +50,10 @@ export class Dashboard {
 
     let path = '';
     let penDown = false;
+    let prevTs = t0;
     for (const r of rows) {
+      if (r.ts - prevTs > MAX_GAP_MS) penDown = false; // ESP32 éteint ou absence : on lève le crayon
+      prevTs = r.ts;
       if (r.distance > 0) {
         path += `${penDown ? 'L' : 'M'}${x(r.ts).toFixed(1)},${y(r.distance).toFixed(1)}`;
         penDown = true;

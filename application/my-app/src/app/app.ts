@@ -62,13 +62,17 @@ export class App {
     this.notif.set(await Notification.requestPermission());
   }
 
-  private notify(title: string, body: string): void {
+  private async notify(title: string, body: string): Promise<void> {
     navigator.vibrate?.([200, 100, 200]);
     if (this.notif() !== 'granted') return;
+    const options = { body, tag: 'deskguard-alert', icon: 'icons/icon-192x192.png', badge: 'icons/icon-96x96.png' };
     try {
-      new Notification(`DeskGuard · ${title}`, { body, tag: 'deskguard-alert', icon: 'favicon.ico' });
+      // Sur mobile (PWA installée), seules les notifications du service worker sont autorisées
+      const registration = await navigator.serviceWorker?.getRegistration();
+      if (registration) await registration.showNotification(`DeskGuard · ${title}`, options);
+      else new Notification(`DeskGuard · ${title}`, options);
     } catch {
-      /* Android Chrome exige un service worker : on garde l'alerte à l'écran */
+      /* notifications indisponibles : l'alerte reste affichée à l'écran */
     }
   }
 }

@@ -1,3 +1,5 @@
+import { duration } from './format';
+
 export type Lang = 'fr' | 'en';
 
 const fr = {
@@ -7,7 +9,7 @@ const fr = {
   navSettings: 'Réglages',
   online: 'En ligne',
   offline: 'Hors ligne',
-  updated: (s: number) => `mis à jour il y a ${s} s`,
+  updated: (s: number) => `mis à jour il y a ${s < 60 ? s + ' s' : duration(s * 1000)}`,
   noData: 'En attente des premières mesures de l’ESP32…',
   offlineHint: 'Aucune mesure récente : vérifiez l’alimentation et le Wi-Fi de l’ESP32.',
   state: { green: 'Tout va bien', orange: 'Attention', red: 'Danger : trop près de l’écran' },
@@ -112,7 +114,7 @@ const en: Dict = {
   navSettings: 'Settings',
   online: 'Online',
   offline: 'Offline',
-  updated: (s) => `updated ${s} s ago`,
+  updated: (s) => `updated ${s < 60 ? s + ' s' : duration(s * 1000)} ago`,
   noData: 'Waiting for the first ESP32 readings…',
   offlineHint: 'No recent reading: check the ESP32 power supply and Wi-Fi.',
   state: { green: 'All good', orange: 'Warning', red: 'Danger: too close to the screen' },
