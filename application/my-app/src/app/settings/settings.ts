@@ -59,6 +59,11 @@ export class Settings {
     });
   }
 
+  /** Remplissage de la piste du curseur, en %. */
+  protected fill(f: Field): number {
+    return ((this.draft()[f.key] - f.min) / (f.max - f.min)) * 100;
+  }
+
   protected patch(key: NumericKey, event: Event): void {
     const value = Number((event.target as HTMLInputElement).value);
     if (Number.isNaN(value)) return;

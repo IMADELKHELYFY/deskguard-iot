@@ -12,21 +12,21 @@
     @let a = analysis();
     <div class="tiles">
       <div class="tile" [title]="t().historyTip">
-        <p class="tile-label"><app-icon name="clock" /> {{ t().totalTime }}</p>
+        <p class="tile-label"><span class="tile-icon"><app-icon name="clock" /></span> {{ t().totalTime }}</p>
         <p class="tile-value">{{ duration(a.total) }}</p>
         <p class="tile-sub">{{ a.sessions.length }} {{ t().sessions | lowercase }} · {{ t().longest | lowercase }} {{ duration(a.longest) }}</p>
       </div>
-      <div class="tile good" [title]="t().timelineTip">
+      <div class="tile green" [title]="t().timelineTip">
         <p class="tile-label"><span class="swatch green"></span> {{ t().goodTime }}</p>
         <p class="tile-value">{{ duration(a.ms.green) }}</p>
         <p class="tile-sub">{{ pct(a.ms.green, a.total) }} %</p>
       </div>
-      <div class="tile" [title]="t().timelineTip">
+      <div class="tile orange" [title]="t().timelineTip">
         <p class="tile-label"><span class="swatch orange"></span> {{ t().warnTime }}</p>
         <p class="tile-value">{{ duration(a.ms.orange) }}</p>
         <p class="tile-sub">{{ pct(a.ms.orange, a.total) }} %</p>
       </div>
-      <div class="tile" [title]="t().timelineTip">
+      <div class="tile red" [title]="t().timelineTip">
         <p class="tile-label"><span class="swatch red"></span> {{ t().dangerTime }}</p>
         <p class="tile-value">{{ duration(a.ms.red) }}</p>
         <p class="tile-sub">{{ pct(a.ms.red, a.total) }} %</p>
@@ -82,6 +82,6 @@
       </ul>
     </section>
   } @empty {
-    <section class="card"><p class="muted">{{ t().noSessions }}</p></section>
+    <section class="card"><div class="empty"><app-icon name="history" /><p class="muted">{{ t().noSessions }}</p></div></section>
   }
 </main>

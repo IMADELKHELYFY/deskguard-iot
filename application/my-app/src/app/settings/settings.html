@@ -8,11 +8,13 @@
             <span>{{ t()[f.label] }} <app-icon name="info" class="tip" /></span>
             <output>{{ f.key === 'luxCal' ? (draft()[f.key] | number: '1.2-2') : draft()[f.key] }} {{ f.unit }}</output>
           </span>
-          <input type="range" [min]="f.min" [max]="f.max" [step]="f.step" [value]="draft()[f.key]" (input)="patch(f.key, $event)" />
+          <input type="range" [min]="f.min" [max]="f.max" [step]="f.step" [value]="draft()[f.key]" (input)="patch(f.key, $event)"
+                 [style.--p]="fill(f) + '%'" />
+          <span class="range-ends"><span>{{ f.min }}</span><span>{{ f.max }}</span></span>
         </label>
       }
-      <label class="check" [title]="t().tgTip">
-        <input type="checkbox" [checked]="draft().telegramOn" (change)="toggleTelegram($event)" />
+      <label class="check switch" [title]="t().tgTip">
+        <input type="checkbox" role="switch" [checked]="draft().telegramOn" (change)="toggleTelegram($event)" />
         <app-icon name="send" /> {{ t().tgEnabled }}
       </label>
       <div class="form-actions">
